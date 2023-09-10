@@ -25,17 +25,16 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(speedcontrol speedcontrol.c )
+add_executable(speedcontrol speedcontrol.c)
 
 pico_set_program_name(speedcontrol "speedcontrol")
 pico_set_program_version(speedcontrol "0.1")
 
-pico_enable_stdio_uart(speedcontrol 1)
-pico_enable_stdio_usb(speedcontrol 0)
+pico_enable_stdio_uart(speedcontrol 0)
+pico_enable_stdio_usb(speedcontrol 1)
 
 # Add the standard library to the build
-target_link_libraries(speedcontrol
-        pico_stdlib)
+target_link_libraries(speedcontrol pico_stdlib hardware_pwm)
 
 # Add the standard include files to the build
 target_include_directories(speedcontrol PRIVATE
@@ -44,4 +43,3 @@ target_include_directories(speedcontrol PRIVATE
 )
 
 pico_add_extra_outputs(speedcontrol)
-
