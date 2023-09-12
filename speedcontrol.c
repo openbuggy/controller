@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
+#include "pico/cyw43_arch.h"
 
 static const uint32_t CPU_FREQ = 125000000;
-static const uint16_t USB_VALUE_RANGE = 255;
+static const uint16_t USB_VALUE_RANGE = 1000;
 static const uint8_t GPIO_THROTTLE = 2;
 static const uint8_t GPIO_STEERING = 3;
 static const uint8_t PWM_SLICE = 1;
@@ -57,10 +58,15 @@ int main()
     add_repeating_timer_ms(-1000 / PWM_SET_LEVEL_FREQ, set_levels_callback, NULL, &timer);
 
     stdio_init_all();
+    cyw43_arch_init();
+    bool led_on = false;
+
     while (true)
     {
         uint16_t buffer[2];
         size_t n_read = fread(buffer, sizeof(buffer[0]), 2, stdin);
+        led_on = !led_on;
+        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
         if (n_read != 2) {
             return 1;
         }

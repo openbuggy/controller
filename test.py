@@ -1,6 +1,6 @@
 import serial, time
 
-with serial.Serial('/dev/ttyACM1', 115200, timeout=1) as ser:
+with serial.Serial('/dev/ttyACM0', 115200, timeout=1) as ser:
     throttle = 127
     steering = 127
     delta = 1
