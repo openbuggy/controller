@@ -12,7 +12,7 @@ static const uint8_t GPIO_STEERING = 3;
 static const uint8_t PWM_SLICE = 1;
 static const float PWM_CLKDIV = 38.1875f;
 static const uint16_t PWM_WRAP = 65465;
-static const uint16_t PWM_SET_LEVEL_FREQ = 30;
+static const uint16_t PWM_SET_LEVEL_FREQ = 100;
 static const uint16_t MAX_TIME_WITHOUT_UPDATE_MS = 100;
 static const float NEUTRAL_THROTTLE = 0.5f;
 static const float NEUTRAL_STEERING = 0.5f;
@@ -34,12 +34,14 @@ bool set_levels_callback(struct repeating_timer *t)
 {
     uint16_t throttle_level;
     uint16_t steering_level;
-    if (set_level_counter < MAX_COUNTER_WITHOUT_UPDATE) {
+    if (set_level_counter < MAX_COUNTER_WITHOUT_UPDATE)
+    {
         throttle_level = PWM_MS_LEVEL + (uint16_t)(throttle * PWM_MS_LEVEL);
         steering_level = PWM_MS_LEVEL + (uint16_t)(steering * PWM_MS_LEVEL);
         set_level_counter++;
-    } 
-    else {
+    }
+    else
+    {
         throttle_level = 0;
         steering_level = 0;
     }
@@ -54,9 +56,11 @@ bool measure_battery_callback(struct repeating_timer *t)
     const float voltage_a = adc_read() * BATTERY_A_FACTOR;
     adc_select_input(1);
     const float voltage_b = adc_read() * BATTERY_B_FACTOR;
-    if (measure_battery_counter == BATTERY_SEND_COUNTER) {
+    if (measure_battery_counter == BATTERY_SEND_COUNTER)
+    {
         const uint16_t buffer[] = {(uint16_t)(voltage_a * 100), (uint16_t)(voltage_b * 100)};
-        fwrite(buffer, 2, sizeof(buffer[0]), stdout);
+        fwrite(buffer, sizeof(buffer[0]), 2, stdout);
+        fflush(stdout);
         measure_battery_counter = 0;
     }
     return true;
@@ -74,7 +78,7 @@ int main()
     // Load the configuration into our PWM slice, and set it running.
     pwm_init(PWM_SLICE, &config, true);
     pwm_set_both_levels(PWM_SLICE, PWM_MS_LEVEL + (uint16_t)(NEUTRAL_THROTTLE * PWM_MS_LEVEL),
-                                   PWM_MS_LEVEL + (uint16_t)(NEUTRAL_STEERING * PWM_MS_LEVEL));
+                        PWM_MS_LEVEL + (uint16_t)(NEUTRAL_STEERING * PWM_MS_LEVEL));
     struct repeating_timer timer;
     // Negative delay so means we will call repeating_timer_callback, and call it again
     // 500ms later regardless of how long the callback took to execute
@@ -82,6 +86,8 @@ int main()
 
     stdio_init_all();
     cyw43_arch_init();
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+
 
     adc_init();
     // Make sure GPIO is high-impedance, no pullups etc
@@ -98,13 +104,14 @@ int main()
     {
         uint16_t buffer[2];
         size_t n_read = fread(buffer, sizeof(buffer[0]), 2, stdin);
-        led_on = !led_on;
-        cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
-        if (n_read != 2) {
+        //led_on = !led_on;
+        //cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+        if (n_read != 2)
+        {
             return 1;
         }
         throttle = (float)buffer[0] / USB_VALUE_RANGE;
-        steering = (float)buffer[1] / USB_VALUE_RANGE;
+        steering = (float)(USB_VALUE_RANGE - buffer[1]) / USB_VALUE_RANGE;
         set_level_counter = 0;
     }
     return 0;
