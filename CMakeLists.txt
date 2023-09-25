@@ -18,28 +18,28 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(speedcontrol C CXX ASM)
+project(controller C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(speedcontrol speedcontrol.c)
+add_executable(controller controller.c)
 
-pico_set_program_name(speedcontrol "speedcontrol")
-pico_set_program_version(speedcontrol "0.1")
+pico_set_program_name(controller "controller")
+pico_set_program_version(controller "0.1")
 
-pico_enable_stdio_uart(speedcontrol 0)
-pico_enable_stdio_usb(speedcontrol 1)
+pico_enable_stdio_uart(controller 0)
+pico_enable_stdio_usb(controller 1)
 
 # Add the standard library to the build
-target_link_libraries(speedcontrol pico_stdlib hardware_pwm pico_cyw43_arch_none hardware_adc)
+target_link_libraries(controller pico_stdlib hardware_pwm pico_cyw43_arch_none hardware_adc)
 
 # Add the standard include files to the build
-target_include_directories(speedcontrol PRIVATE
+target_include_directories(controller PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
 )
 
-pico_add_extra_outputs(speedcontrol)
+pico_add_extra_outputs(controller)
